@@ -1,6 +1,8 @@
 .model small
 .stack
 .data
+
+;SECTION: DATA DECLARATIONS
 	msg_game_over db 'GAME OVER$'
 	msg_score db 'Puntos: $'
 	score db 0
@@ -14,48 +16,53 @@
 	car2_x db 50
 	car3_x db 30
 	car4_x db 60
+
 .code
+
+;SECTION: MAIN PROCEDURE
 main proc
 	mov ax, @data
 	mov ds, ax
 
+
+;SECTION: MACRO DEFINITIONS
 	draw_car macro color, x, y
-		mov ah, 6h	;desplazamiento de ventana de texto
-		mov al, 0h	;se va a la fila 0
-		mov bh, color	;color y atributo de texto
-		mov cl, x	;esquina superior izquierda col
-		mov ch, y	;esquina superior izquierda fila
-		mov dl, x	;esquina inferior derecha col
+		mov ah, 6h
+		mov al, 0h
+		mov bh, color
+		mov cl, x
+		mov ch, y
+		mov dl, x
 		add dl, 6
-		mov dh, y	;esquina inferior derecha fila
+		mov dh, y
 		int 10h
-		mov bh, color	;color y atributo de texto
-		mov cl, x	;esquina superior izquierda col
+		mov bh, color
+		mov cl, x
 		sub cl, 1
-		mov ch, y	;esquina superior izquierda fila
+		mov ch, y
 		add ch, 1
-		mov dl, x	;esquina inferior derecha col
+		mov dl, x
 		add dl, 7
-		mov dh, y	;esquina inferior derecha fila
+		mov dh, y
 		add dh, 1
 		int 10h
-		mov bh, 0h	;color y atributo de texto
-		mov cl, x	;esquina superior izquierda col
-		mov ch, y	;esquina superior izquierda fila
+		mov bh, 0h
+		mov cl, x
+		mov ch, y
 		add ch, 2
-		mov dl, x	;esquina inferior derecha col
+		mov dl, x
 		add dl, 1
-		mov dh, y	;esquina inferior derecha fila
+		mov dh, y
 		add dh, 2
 		int 10h
-		mov bh, 0h	;color y atributo de texto
-		mov cl, x	;esquina superior izquierda col
+		mov bh, 0h
+		mov cl, x
 		add cl, 5
-		mov ch, y	;esquina superior izquierda fila
+		mov ch, y
 		add ch, 2
-		mov dl, x	;esquina inferior derecha col
+		mov dl, x
 		add dl, 6
-		mov dh, y	;esquina inferior derecha fila
+		mov dh, y
 		add dh, 2
 		int 10h
 	endm
@@ -82,58 +89,63 @@ main proc
 	endm
 
 	draw_rect macro color, x1, y1, x2, y2
-		mov ah, 6h	;desplazamiento de ventana de texto
-		mov al, 0h	;se va a la fila 0
-		mov bh, color	;color y atributo de texto
-		mov cl, x1	;esquina superior izquierda col
-		mov ch, y1	;esquina superior izquierda fila
-		mov dl, x2	;esquina inferior derecha col
-		mov dh, y2	;esquina inferior derecha fila
+		mov ah, 6h
+		mov al, 0h
+		mov bh, color
+		mov cl, x1
+		mov ch, y1
+		mov dl, x2
+		mov dh, y2
 		int 10h
 	endm
 
 	mov_cur macro x, y
-		mov ah, 2h	;"funcion" coloca cursor en pantalla
-		mov bh, 0h	;selecciona pagina de video 0
-		mov dl, x	;columna del cursor
-		mov dh, y	;fila del cursor
+		mov ah, 2h
+		mov bh, 0h
+		mov dl, x
+		mov dh, y
 		int 10h
 	endm
 
+
+;SECTION: GAME LOOP
 _main_loop:
-	mov ax, 3	;limpiar y asi
+	mov ax, 3
 	int 10h
 
-	;SCORE-------------------------
+
+;SUBSECTION: DISPLAY SCORE
 	mov_cur 4, 1
-	mov ah, 9h			;etiqueta
+	mov ah, 9h
 	lea dx, msg_score
 	int 21h
-	xor ax, ax			;numero real
+	xor ax, ax
 	mov al, score
 	call print_num
-	mov ah, 2h			;ceros para enganiar al jugador xdxdx
+	mov ah, 2h
 	xor dx, dx
 	mov dx, '0'
 	int 21h
 	int 21h
 
-	;BACKGROUND--------------------
-	;un saludito pal gad y pal barufis
+
+;SUBSECTION: DRAW BACKGROUND
 	draw_rect 70h, 2, 3, 76, 22
 
-	;OBJECTIVE---------------------
-	mov ah, 6h	;desplazamiento de ventana de texto
-	mov al, 0h	;se va a la fila 0
-	mov bh, 60h	;color y atributo de texto
-	mov cl, objective_x	;esquina superior izquierda col
-	mov ch, 3			;esquina superior izquierda fila
-	mov dl, objective_x	;esquina inferior derecha col
+
+;SUBSECTION: DRAW OBJECTIVE
+	mov ah, 6h
+	mov al, 0h
+	mov bh, 60h
+	mov cl, objective_x
+	mov ch, 3
+	mov dl, objective_x
 	add dl, 1
-	mov dh, 3			;esquina inferior derecha fila
+	mov dh, 3
 	int 10h
 
-	;CARS--------------------------
+
+;SUBSECTION: UPDATE AND DRAW CARS
 	add car1_x, 4
 	cmp car1_x, 80
 	jbe _car1_not_finished
@@ -163,24 +175,27 @@ _car4_not_finished:
 	draw_car 40h, car3_x, 13
 	draw_car 50h, car4_x, 17
 
-	;PLAYER------------------------
-	mov ah, 6h	;desplazamiento de ventana de texto
-	mov al, 0h	;se va a la fila 0
-	mov bh, 20h	;color y atributo de texto
-	mov cl, player_x	;esquina superior izquierda col
-	mov ch, player_y	;esquina superior izquierda fila
-	mov dl, player_x	;esquina inferior derecha col
+
+;SUBSECTION: DRAW PLAYER
+	mov ah, 6h
+	mov al, 0h
+	mov bh, 20h
+	mov cl, player_x
+	mov ch, player_y
+	mov dl, player_x
 	add dl, 1
-	mov dh, player_y	;esquina inferior derecha fila
+	mov dh, player_y
 	int 10h
 
-	;DELAY-------------------------
+
+;SUBSECTION: DELAY
 	mov cx, 2
 	_delay:
 	hlt
 	loop _delay
 
-	;INPUT-------------------------
+
+;SUBSECTION: INPUT HANDLING
 	mov ah, 1h
 	int 16h
 	jz _after_input
@@ -224,7 +239,8 @@ _input_down:
 	jmp _after_input
 _after_input:
 
-	;WIN CONDITION-----------------
+
+;SUBSECTION: WIN CONDITION
 	mov ah, player_x
 	cmp ah, objective_x
 	jne _no_win
@@ -233,7 +249,7 @@ _after_input:
 	add score, 1
 	mov player_y, 22
 	
-	mov ah, 00h		;posicion random para el objetivo
+	mov ah, 00h
 	int 1ah
 	mov ax, dx
 	xor dx, dx
@@ -243,18 +259,21 @@ _after_input:
 	mov objective_x, dl
 _no_win:
 
-	;COLLISIONS--------------------
+
+;SUBSECTION: COLLISION DETECTION
 	check_collision car1_x, 5, _not_killed1
 	check_collision car2_x, 9, _not_killed2
 	check_collision car3_x, 13, _not_killed3
 	check_collision car4_x, 17, _not_killed4
 
-	jmp _main_loop	;FIN del loop principal :v
+	jmp _main_loop
 	
 _end:
 	int 27h
 main endp
 
+
+;SECTION: PRINT NUMBER PROCEDURE
 print_num proc
     mov cx, 0
     mov bx, 10
@@ -274,6 +293,8 @@ print_digits:
     ret
 print_num endp
 
+
+;SECTION: GAME OVER PROCEDURE
 game_over proc
 	mov_cur 34, 12
 	mov ah, 9h
