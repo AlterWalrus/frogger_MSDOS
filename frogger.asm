@@ -189,9 +189,9 @@ _car4_not_finished:
 
 
 ;SUBSECTION: DELAY
-	mov cx, 2
-	_delay:
-	hlt
+	mov cx, 0FFFFh
+_delay:
+	nop
 	loop _delay
 
 
